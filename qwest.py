@@ -1,4 +1,4 @@
-import pprint
+import time
 from bs4 import BeautifulSoup
 import requests
 import json
@@ -141,6 +141,6 @@ class CustomEnc(json.JSONEncoder):
 jsondata = json.dumps(plan, cls=CustomEnc)
 
 # Write to File
-with open("data6.json", "w") as outfile:
+with open("qwest_" + str(time.time()) + ".json", "w") as outfile:
     outfile.write(jsondata)
 
