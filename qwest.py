@@ -43,8 +43,6 @@ def get_soup(ingredients):
 
 def get_dishes(unparsedItems):
 
-    print(len(unparsedItems))
-
     dishlist = []
 
     # Skip the first entry it only contains information about the displayed values
@@ -76,9 +74,9 @@ def get_dishes(unparsedItems):
         # Extract Prices for Guests and Students (seperated by a '|')
         pricetext = tp_items[x].findNext("span", "live_speiseplan_item_price").text
         match = re.findall('([0-9]{1,2}\,[0-9]{2}\s€)', pricetext)
-            # Feiertage = 0
-            #if len(match) < 2:
-                #raise Exception("Could not filter Prices")
+        # Feiertage = 0
+        if len(match) < 2:
+            return dishlist
 
         tmp_dish.price_student = match[0]
         tmp_dish.price_guest = match[1]
@@ -112,16 +110,16 @@ for x in range(0, len(sp_header)):
     tp_items = tp_itemcontainer.findAll("div", "live_speiseplan_item")
 
     # Extract Dishes
-    tmp_dayplan.dishes = getDishes(tp_items)
+    tmp_dayplan.dishes = get_dishes(tp_items)
 
     # Add Dayplan to list
     tmp_dayplans.append(tmp_dayplan)
 
 # Allergene ETC
 tmp_abbreviations = abbreviation()
-tmp_abbreviations.informations = getSoup(fetchWebsite()).find("div", "kennzeichen informations").text
-tmp_abbreviations.allergens = getSoup(fetchWebsite()).find("div", "kennzeichen allergene").text
-tmp_abbreviations.additives = getSoup(fetchWebsite()).find("div", "kennzeichen zusatzstoffe").text
+tmp_abbreviations.informations = get_soup(fetch_website()).find("div", "kennzeichen informations").text
+tmp_abbreviations.allergens = get_soup(fetch_website()).find("div", "kennzeichen allergene").text
+tmp_abbreviations.additives = get_soup(fetch_website()).find("div", "kennzeichen zusatzstoffe").text
 
 # Final Fullplan
 plan = fullplan(tmp_dayplans, tmp_abbreviations)
@@ -139,5 +137,10 @@ class CustomEnc(json.JSONEncoder):
         return json.JSONEncoder.default(self, o)
 
 
+# JSON Encode
 jsondata = json.dumps(plan, cls=CustomEnc)
-pprint.pprint(jsondata)
+
+# Write to File
+with open("data6.json", "w") as outfile:
+    outfile.write(jsondata)
+
